@@ -30,6 +30,9 @@ default_schema = {
             # Collect basic networking information regarding the client. 
             "network": {
 
+                # Store network latency as well.
+                "latency": None,
+
                 # Store the interfaces of the client and various information regarding them in a table.
                 "interfaces": []
 
@@ -125,6 +128,30 @@ class Record:
                 # Add the record to the database.
                 database[self.token] = serialized_record
     
+    # This function will be used to either edit or add a new network latency to the record.
+    def set_network_latency(self, latency):
+        # Update the record.
+        self.record["data"]["analytics"]["network"]["latency"] = latency
+
+        # Update the record metadata.
+        self.record["metadata"]["updated_at"] = time.time()
+        self.record["metadata"]["audit_log"].append({
+
+            "timestamp": time.time(),
+            "description": "Network latency was updated.",
+            "event": "network_latency_updated"
+
+        })
+
+        # Serialize the record and update the database.
+        with dbm.open("monitor.sqlite", "c") as database:
+
+            # Serialize the record.
+            serialized_record = json.dumps(self.record)
+
+            # Update the record in the database.
+            database[self.token] = serialized_record
+
     # This function will be used to either edit or add a new network interface to the record.
     def set_network_interfaces(self, interface):
 
