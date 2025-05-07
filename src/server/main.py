@@ -1,7 +1,7 @@
 # Import the Flask module and a few other helpers.
 from flask import Flask, jsonify, request
 from errors import misconfigured_clock, unauthorized_request
-import time
+import time, dbm, json
 
 # Define the Flask application.
 app = Flask(__name__)
@@ -51,6 +51,20 @@ def latency():
 
         # If we've branched here, then the timestamp is in the future. Our or the client's clock is wrong.
         return misconfigured_clock()
+
+    with dbm.open("monitor.db", "c") as db:
+
+        # Construct our object for the key-value store.
+        latency_object = {
+
+            "requested_at": current_timestamp,
+            "latency": drift_timestamp,
+            "token": client_token,
+
+        }
+
+        # Store the latency object in the key-value store.
+        db[str(client_token) + "-latency"] = json.dumps(latency_object)
 
     # Otherwise, the timestamp is valid. Our drift timestamp is thus our latency.
     return jsonify({
