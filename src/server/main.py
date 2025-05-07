@@ -106,7 +106,7 @@ def latency():
             # Add the client record to the database.
             db[client_token] = client_record
 
-    # Just return the data snippet from earlier to the client.
+    # Just return the data snippet from earlier to the client if they wish to do something with it.
     return jsonify({
 
         "requested_at": current_timestamp,
