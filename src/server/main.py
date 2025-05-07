@@ -54,21 +54,63 @@ def latency():
 
     with dbm.open("monitor.db", "c") as db:
 
-        # Construct our object for the key-value store.
-        latency_object = {
+        # Check if there is a record of the client in the database already.
+        try:
+            # Check if there is a record of the client in the database already.
+            client_record = db[client_token]
 
-            "requested_at": current_timestamp,
-            "latency": drift_timestamp,
-            "token": client_token,
+            # Deserialize the client record.
+            client_record = json.loads(client_record)
 
-        }
+            # Update the client record with the new data.
+            client_record["updated_at"] = current_timestamp
+            client_record["events"].append({
 
-        # Store the latency object in the key-value store.
-        db[str(client_token) + "-latency"] = json.dumps(latency_object)
+                "requested_at": current_timestamp,
+                "latency": drift_timestamp,
+                "route": "/latency"
 
-    # Otherwise, the timestamp is valid. Our drift timestamp is thus our latency.
+            })
+
+            # Serialize the updated client record.
+            client_record = json.dumps(client_record)
+
+            # Update the client record in the database.
+            db[client_token] = client_record
+
+        except KeyError:
+            # If not, then create a new record for the client.
+            client_record = {
+
+                "created_at": current_timestamp,
+                "updated_at": current_timestamp,
+                "events": [
+
+                    {
+
+                        "requested_at": current_timestamp,
+                        "latency": drift_timestamp,
+                        "route": "/latency"
+
+                    }
+
+                ],
+
+                "token": client_token
+
+            }
+
+            # Serialize the client record.
+            client_record = json.dumps(client_record)
+
+            # Add the client record to the database.
+            db[client_token] = client_record
+
+    # Just return the data snippet from earlier to the client.
     return jsonify({
 
+        "requested_at": current_timestamp,
         "latency": drift_timestamp,
+        "route": "/latency"
 
     }), 200
