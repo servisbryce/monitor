@@ -17,6 +17,7 @@ application_secrets = [
 
 ]
 
+# An endpoint to report latency to the server.
 @monitor.route("/api/v1/report_latency", methods=["POST"])
 def report_latency():
 
@@ -80,3 +81,10 @@ def report_latency():
         "network_latency": network_latency
 
     })
+
+# An endpoint to report network interfaces.
+@monitor.route("/api/v1/report_network_interfaces", method=["POST"])
+def report_network_interfaces():
+
+    # Retrieve request body which should be a JSON object.
+    body = request.get_json()
