@@ -81,7 +81,7 @@ def report_latency():
 
         "network_latency": network_latency
 
-    })
+    }, 200)
 
 
 # An endpoint to report network interfaces.
