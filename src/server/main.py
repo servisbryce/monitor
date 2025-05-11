@@ -129,15 +129,22 @@ def report_network_interface():
     except:
 
         # Alert the request that their message isn't valid.
-        abort(400, "Corrupted or malformed request.")
+        abort(400, "Corrupted or malformed request. 1")
 
     # Check that there aren't any null values where they aren't warranted. Addresses receive an exception because an interface may not always have an address assigned to it at a given time.
-    if (network_interface_schema["name"] is None or network_interface_schema["mac"] is None or (network_interface_schema["ipv4"] is None and network_interface_schema["ipv6"] is None)):
-        abort(400, "Corrupted or malformed request.")
+    if (network_interface_schema["name"] is None or network_interface_schema["mac"] is None):
+        abort(400, "Corrupted or malformed request. 2")
 
     # We'll also want to make sure that all of our values are strings, if they aren't empty address fields.
-    if (not isinstance(body["name"], str) or (not isinstance(body["mac"], str)) or ((not isinstance(body["ipv4"], str)) and (not isinstance(body["ipv6"], str)))):
-        abort(400, "Corrupted or malformed request.")
+    if (not isinstance(body["name"], str) or (not isinstance(body["mac"], str))):
+        abort(400, "Corrupted or malformed request. 3")
+
+    # If either address value is set, we should also ensure that it's a string and not an alternative value.
+    if (body["ipv6"] is not None and not isinstance(body["ipv6"], str)):
+        abort(400, "Malformed IPv6 value.")
+
+    if (body["ipv4"] is not None and not isinstance(body["ipv4"], str)):
+        abort(400, "Malformed IPv4 value.")
 
     # Update our database record.
     client_record = Record(body["token"])
