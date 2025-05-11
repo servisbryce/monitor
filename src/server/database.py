@@ -94,6 +94,15 @@ default_cpu_schema = {
 
 }
 
+# Define the sub-schema for memory and swap memory for documentation purposes.
+memory_schema = {
+
+    "available": None,
+    "used": None,
+    "swap": None,
+
+}
+
 # Define a class to represent a record in the database.
 class Record:
 

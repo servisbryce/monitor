@@ -205,3 +205,71 @@ def report_cpu():
         "message": "Success"
 
     }, 200)
+
+# An endpoint to report memory.
+@monitor.route("/api/v1/report_memory", methods=["POST"])
+def report_memory():
+
+    # Request the body payload.
+    body = request.get_json()
+
+    # Authenticate our user.
+    authenticate(body)
+
+    # Define our schema.
+    memory_schema = {
+
+        "available": None,
+        "used": None,
+        "swap": None,
+
+    }
+
+    # Attempt to fetch our values from the request.
+    try:
+
+        # Fetch our necessary values.
+        memory_schema["available"] = body["available"]
+        memory_schema["used"] = body["used"]
+        memory_schema["swap"] = body["swap"]
+
+    except:
+
+        # Abort if we struggle to find the required values.
+        abort(400, "There was an error while trying to parse your request.")
+
+    # Ensure that we validate our inputs.
+    if (not isinstance(memory_schema["available"], int) or not isinstance(memory_schema["used"], int)):
+        abort(400, "There was an invalid type detected while trying parsing your request.")
+
+    if (not isinstance(memory_schema["swap"], dict) and not memory_schema["swap"] is None):
+        abort(400, "There was an error while trying to verify the type of the swap object.")
+
+    # If swap is populated, then we'll validate it as well.
+    if (isinstance(memory_schema["swap"], dict)):
+
+        # There is a chance that our values aren't present in the swap dict, so we'll need to use a try function here.
+        try:
+
+            # Ensure that our types are correct.
+            if (not isinstance(memory_schema["swap"]["available"], int)):
+                abort(400, "The swap segment of your request has an invalid type.")
+
+            if (not isinstance(memory_schema["swap"]["used"], int)):
+                abort(400, "The swap segment of your request has an invalid type.")
+
+        except:
+
+            # If these values couldn't be parsed, then we'll abort.
+            abort(400, "The swap segment of your request couldn't be parsed.")
+
+    # Update the database.
+    client_record = Record(body["token"])
+    client_record.set_memory(memory_schema)
+
+    # Reaffirm success to client.
+    return jsonify({
+
+        "message": "Success"
+
+    }, 200)
