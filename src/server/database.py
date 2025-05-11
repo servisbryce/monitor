@@ -74,7 +74,7 @@ default_schema = {
 
 }
 
-# Define the sub-schema for the network interfaces.
+# Define the sub-schema for the network interfaces for documentation purposes.
 default_network_interface_schema = {
 
     "name": None,
