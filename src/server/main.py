@@ -122,8 +122,8 @@ def report_network_interface():
         abort(400, "Corrupted or malformed request.")
 
     # We'll also want to make sure that all of our values are strings, if they aren't empty address fields.
-    if (not (isinstance(body["name"], str) or not isinstance(body["mac"], str)) or not (isinstance(body["ipv4"], str) and isinstance(body["ipv6"], str))):
-        abort(400, "Corrupted or malformed request. 2")
+    if (not isinstance(body["name"], str) or (not isinstance(body["mac"], str)) or ((not isinstance(body["ipv4"], str)) and (not isinstance(body["ipv6"], str)))):
+        abort(400, "Corrupted or malformed request.")
 
     # Update our database record.
     client_record = Record(body["token"])
