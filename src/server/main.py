@@ -14,6 +14,15 @@ import time
 # Define our application.
 monitor = Flask(__name__)
 
+# Define our ratelimits.
+limiter = Limiter(
+
+    app=monitor,
+    key_func=get_remote_address,
+    default_limits=["60 per hour"]
+
+)
+
 # Define our application secrets.
 application_secrets = [
 
