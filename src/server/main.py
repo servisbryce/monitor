@@ -83,10 +83,9 @@ def report_latency():
 
     }, 200)
 
-
 # An endpoint to report network interfaces.
-@monitor.route("/api/v1/report_network_interfaces", method=["POST"])
-def report_network_interfaces():
+@monitor.route("/api/v1/report_network_interface", methods=["POST"])
+def report_network_interface():
 
     # Retrieve request body which should be a JSON object.
     body = request.get_json()
@@ -108,10 +107,10 @@ def report_network_interfaces():
     try:
 
         # Populate our table.
-        body["name"] = network_interface_schema["name"]
-        body["ipv6"] = network_interface_schema["ipv6"]
-        body["ipv4"] = network_interface_schema["ipv4"]
-        body["mac"] = network_interface_schema["mac"]
+        network_interface_schema["name"] = body["name"]
+        network_interface_schema["ipv6"] = body["ipv6"]
+        network_interface_schema["ipv4"] = body["ipv4"]
+        network_interface_schema["mac"] = body["mac"]
 
     except:
 
@@ -119,16 +118,18 @@ def report_network_interfaces():
         abort(400, "Corrupted or malformed request.")
 
     # Check that there aren't any null values where they aren't warranted. Addresses receive an exception because an interface may not always have an address assigned to it at a given time.
-    if (body["name"] is None or body["mac"] is None or (body["ipv4"] is None and body["ipv6"] is None)):
+    if (network_interface_schema["name"] is None or network_interface_schema["mac"] is None or (network_interface_schema["ipv4"] is None and network_interface_schema["ipv6"] is None)):
         abort(400, "Corrupted or malformed request.")
 
     # We'll also want to make sure that all of our values are strings, if they aren't empty address fields.
-    if ((isinstance(body["name"], None) or isinstance(body["mac"], None)) or (isinstance(body["ipv4"], None) and isinstance(body["ipv6"], None))):
-        abort(400, "Corrupted or malformed request.")
+    if (not (isinstance(body["name"], str) or not isinstance(body["mac"], str)) or not (isinstance(body["ipv4"], str) and isinstance(body["ipv6"], str))):
+        abort(400, "Corrupted or malformed request. 2")
 
+    # Update our database record.
     client_record = Record(body["token"])
     client_record.set_network_interfaces(network_interface_schema)
 
+    # Reaffirm success to client.
     return jsonify({
 
         "message": "Success"
