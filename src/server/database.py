@@ -84,6 +84,16 @@ default_network_interface_schema = {
 
 }
 
+# Define the sub-schema for the CPU for documentation purposes.
+default_cpu_schema = {
+
+    "threads": None,
+    "cores": None,
+    "model": None,
+    "load": None
+
+}
+
 # Define a class to represent a record in the database.
 class Record:
 

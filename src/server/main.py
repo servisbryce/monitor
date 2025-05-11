@@ -129,26 +129,75 @@ def report_network_interface():
     except:
 
         # Alert the request that their message isn't valid.
-        abort(400, "Corrupted or malformed request. 1")
+        abort(400, "Corrupted or malformed request.")
 
     # Check that there aren't any null values where they aren't warranted. Addresses receive an exception because an interface may not always have an address assigned to it at a given time.
     if (network_interface_schema["name"] is None or network_interface_schema["mac"] is None):
-        abort(400, "Corrupted or malformed request. 2")
+        abort(400, "An essential value is set to null in the request.")
 
     # We'll also want to make sure that all of our values are strings, if they aren't empty address fields.
     if (not isinstance(body["name"], str) or (not isinstance(body["mac"], str))):
-        abort(400, "Corrupted or malformed request. 3")
+        abort(400, "An essential value isn't the correct type in the request.")
 
     # If either address value is set, we should also ensure that it's a string and not an alternative value.
     if (body["ipv6"] is not None and not isinstance(body["ipv6"], str)):
-        abort(400, "Malformed IPv6 value.")
+        abort(400, "The type for the IPv6 value isn't recognized in the request.")
 
     if (body["ipv4"] is not None and not isinstance(body["ipv4"], str)):
-        abort(400, "Malformed IPv4 value.")
+        abort(400, "The type for the IPv4 value isn't recognized in the request.")
 
     # Update our database record.
     client_record = Record(body["token"])
     client_record.set_network_interfaces(network_interface_schema)
+
+    # Reaffirm success to client.
+    return jsonify({
+
+        "message": "Success"
+
+    }, 200)
+
+# An endpoint to report the CPU.
+@monitor.route("/api/v1/report_cpu", methods=["POST"])
+def report_cpu():
+    
+    # Retrieve body payload.
+    body = request.get_json()
+
+    # Authenticate the user.
+    authenticate(body)
+
+    # Define our schema.
+    cpu_schema = {
+
+        "threads": None,
+        "cores": None,
+        "model": None,
+        "load": None
+
+    }
+
+    # Attempt to retrieve all of our data from the request.
+    try:
+
+        # Retrieve the data.
+        cpu_schema["threads"] = body["threads"]
+        cpu_schema["cores"] = body["cores"]
+        cpu_schema["model"] = body["model"]
+        cpu_schema["load"] = body["load"]
+
+    except:
+
+        # Abort if we're unable to find the necessary data in the request.
+        abort(400, "Malformed or corrupted request.")
+
+    # Ensure that our types are rigid and correct.
+    if not isinstance(cpu_schema["threads"], int) or not isinstance(cpu_schema["cores"], int) or not isinstance(cpu_schema["model"], str) or not isinstance(cpu_schema["load"], float):
+        abort(400, "Type-error in request.")
+
+    # Update the database.
+    client_record = Record(body["token"])
+    client_record.set_cpu(cpu_schema)
 
     # Reaffirm success to client.
     return jsonify({
