@@ -4,6 +4,10 @@ from database import Record
 # Import the Flask server.
 from flask import Flask, request, jsonify, abort
 
+# Import rate limiters.
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 # Import other modules.
 import time
 
@@ -79,6 +83,7 @@ def report_latency():
     # Then, we'll respond to the client with the latency value we've recorded to complete the request.
     return jsonify({
 
+        "message": "Success",
         "network_latency": network_latency
 
     }, 200)
