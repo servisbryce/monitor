@@ -275,7 +275,7 @@ class Record:
         if (len(self.record["data"]["analytics"]["disks"]["mounting_points"]) > 0):
 
             # Check if the path is already an object inside of the path list.
-            for mounting_point_record in self.record["data"]["analytics"]["network"]["mounting_points"]:
+            for mounting_point_record in self.record["data"]["analytics"]["disks"]["mounting_points"]:
 
                 # If the path name is already in the list, we'll update that record.
                 if mounting_point["path"] == mounting_point_record["path"]:
@@ -300,7 +300,7 @@ class Record:
         self.record["metadata"]["audit_log"].append({
 
             "timestamp": time.time(),
-            "description": "Mounting point " + mounting_point["name"] + " was updated.",
+            "description": "Mounting point " + mounting_point["path"] + " was updated.",
             "event": "network_interface_updated"
 
         })

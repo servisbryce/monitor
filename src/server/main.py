@@ -273,3 +273,49 @@ def report_memory():
         "message": "Success"
 
     }, 200)
+
+@monitor.route("/api/v1/report_disk_mounting_point", methods=["POST"])
+def report_disk_mounting_point():
+
+    # Retrieve request body which should be a JSON object.
+    body = request.get_json()
+
+    # Authenticate the request to ensure that it's valid.
+    authenticate(body)
+
+    # Store our values to retrieve out of the request.
+    disk_interface_schema = {
+
+        "path": None,
+        "used": None,
+        "available": None 
+
+    }
+
+    # Attempt to retrieve all of our data from the request.
+    try:
+
+        # Populate our table.
+        disk_interface_schema["path"] = body["path"]
+        disk_interface_schema["used"] = body["used"]
+        disk_interface_schema["available"] = body["available"]
+
+    except:
+
+        # Alert the request that their message isn't valid.
+        abort(400, "Corrupted or malformed request.")
+
+    # Ensure all values are what they should be.
+    if (not isinstance(disk_interface_schema["path"], str) or not isinstance(disk_interface_schema["available"], int) or not isinstance(disk_interface_schema["used"], int)):
+        abort(400, "Invalid type assigned to field in request.")
+
+    # Update our database record.
+    client_record = Record(body["token"])
+    client_record.set_disk_mounting_point(disk_interface_schema)
+
+    # Reaffirm success to client.
+    return jsonify({
+
+        "message": "Success"
+
+    }, 200)
